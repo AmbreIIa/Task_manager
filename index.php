@@ -4,6 +4,8 @@
     $taskTitle = "Вивчи основи PHP";
     $taskTimeEstimate = 2;
 
+    $IsComplete = false;
+    
 
 ?>
 
@@ -12,6 +14,16 @@
 <head>
     <meta charset="UTF-8">
     
+    <style>
+        .task-done {
+            color: green;
+        }
+
+        .task-pending {
+            color: gray;
+        }
+    </style>
+
 </head>
 <body>
 
@@ -20,7 +32,15 @@
         <h1><?= $appName ?></h1>
 
         <ul>
-            <li>Завдання: <?= $taskTitle ?></li>
+            <li class="<?= $IsComplete ? 'task-done' : 'task-pending' ?>">
+                Завдання: <?= $taskTitle ?>
+                <?php if ($IsComplete == true): ?>
+                    ✔️ Виконано
+                <?php else: ?>
+                    🕒 В процесі
+                <?php endif; ?>
+            </li>
+
             <li>Кількість годин на виконання: <?= $taskTimeEstimate ?></li>
         </ul>
 
