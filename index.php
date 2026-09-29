@@ -1,17 +1,40 @@
 <?php
 
-    $appName = "Task Manager";
-    $taskTitle = "Вивчи мову PHP";
-    $taskTimeEstimate = 2;
+    $tasks = [
+        [
+            'id' => 1,
+            'title' => 'Виконати лабораторну роботу №5',
+            'priority' => 'High',
+            'is_complite' => false,
+            'task_estimate' => 2
+        ],
+        [
+            'id' => 2,
+            'title' => 'Підготувати звіт з практики',
+            'priority' => 'Medium',
+            'is_complite' => true,
+            'task_estimate' => 4
+        ],
+        [
+            'id' => 3,
+            'title' => 'Виконати сиксевен сиксевен разів',
+            'priority' => 'Low',
+            'is_complite' => false,
+            'task_estimate' => 1
+        ]
+    ];
 
-    $IsComplete = false;
+
+    $appName = "Task Manager";
+
+
     
     function formatTitle($text, $maxLength = 20) {
         if (strlen($text) > $maxLength) {
             return substr($text, 0, $maxLength) . '...';
         } else {
             return $text;
-        }
+        }  
     }
 
     function getCurrentGreeting() {
@@ -47,21 +70,24 @@
 <body>
 
     <header>
+        <a href="create.php">Додати нове завдання</a>
 
         <h1><?= $appName ?></h1>
         <p><?= getCurrentGreeting() ?></p>
 
         <ul>
-            <li class="<?= $IsComplete ? 'task-done' : 'task-pending' ?>">
-                Завдання: <?= formatTitle($taskTitle) ?>
-                <?php if ($IsComplete == true): ?>
-                    ✔️ Виконано
-                <?php else: ?>
-                    🕒 В процесі
-                <?php endif; ?>
-            </li>
+            <?php foreach ($tasks as $task): ?>
+                <li class=" <?=$task['is_complite'] ? 'task-done': 'task-pending' ?>">
+                    Завдання: <?= formatTitle($task['title'],100) ?>
+                    <?php if ($task['is_complite']): ?>
+                        ✔️ Виконано
+                    <?php else: ?>
+                        🕒 В процесі
+                    <?php endif; ?>
+                </li>
 
-            <li>Кількість годин на виконання: <?= $taskTimeEstimate ?></li>
+                <li>Кількість годин на виконання: <?= $task['task_estimate'] ?></li>
+            <?php endforeach; ?>
         </ul>
 
     </header>
