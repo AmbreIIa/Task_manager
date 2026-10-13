@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 
     $tasks = [
         [
@@ -70,6 +72,16 @@
 <body>
 
     <header>
+
+        <?php if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true): ?>
+            Привіт <?= $_SESSION['user_name']?>!
+            <a href="logout.php">Вийти</a>
+        <?php else: ?>
+            Ви увійшли як Гість.
+            <a href="login.php">Увійти</a>
+        <?php endif; ?>
+        
+        <br>
         <a href="create.php">Додати нове завдання</a>
 
         <h1><?= $appName ?></h1>
