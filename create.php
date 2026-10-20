@@ -1,15 +1,29 @@
 <?php
+declare(strict_types=1);
+
+session_start();
+if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+    header('Location: login.php');
+    exit;
+}
+
+require_once __DIR__ . '/Task.php';
+require_once __DIR__ . '/TskRepository.php';
+
+$repo = new TaskRepository(__DIR__ . '/task.json');
 
 $allowedExt = ['jpg', 'png'];
 $errors = [];
 $title = '';
 $description = '';
 $priority = '';
+$deadline = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = htmlspecialchars(trim($_POST['title']));
     $description = htmlspecialchars(trim($_POST['description']));
     $priority = htmlspecialchars(trim($_POST['priority']));
+    $deadline    = trim($_POST['deadline'] ?? '') ?: null;
 
     if (empty($title)){
         $errors[] = "Поле Назва є обов'язковим для заповнення!";
@@ -35,22 +49,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        $upload = 'uploads/';
+        $uploadDir = __DIR__ . '/uploads/';
 
-        if (move_uploaded_file($_FILES['avatar']['tmp_name'], 'uploads/' . basename($_FILES['avatar']['name']))){
-            $SuccMEsage = "Файл успішно завантажено!";
+        $newFileName = uniqid('img_') . '.' . pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+        $destPath = $uploadDir . $newFileName;
+
+        if (move_uploaded_file($_FILES['avatar']['tmp_name'], $destPath)) {
+            $repo->add($title, $deadline);
+
+            header('Location: index.php');
+            exit;
         } else {
-            $errors[] = "Помилка при збереженні фалу!"; 
+            $errors[] = 'Помилка при збереженні файлу!';
+        }
     }
-    }
-
-  
-
-
-    echo "<pre>";
-    var_dump($_POST);
-    var_dump($_FILES);
-    echo "</pre>";
 }
 ?>
 
@@ -93,7 +105,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Опис завдання:</p>
         <textarea name="description"><?= $description ?? ''?></textarea>
 
-        <p>Пріорітет:</p>
+        <p>Дедлайн:</p>
+        <input type="date" name="deadline" value=<?= $deadline ?? '' ?>>
+
+        <p>Приорітет</p>
         <select name="priority">
             <option <?= (isset($priority) && $priority === 'Low') ? 'selected' : '' ?>>Low</option>
             <option <?= (isset($priority) && $priority === 'Medium') ? 'selected' : '' ?>>Medium</option>
