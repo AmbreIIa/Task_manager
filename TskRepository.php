@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/Task.php';
+require_once __DIR__ . '/TaskStorageInterface.php';
+require_once __DIR__ . '/Exceptions.php';
 
 class TaskRepository
 {
@@ -25,16 +27,48 @@ class TaskRepository
 
     public function add(string $title, ?string $deadline = null): Task
     {
-        $task = new Task($this->generateNextId(), $title, false, $deadline);
+        $errors = [];
+        $cleanTitle = trim($title);
+
+        if ($cleanTitle === '') {
+            $errors[] = 'Назва завдання є обов\'язковою для заповнення.';
+        } elseif (mb_strlen($cleanTitle) < 3) {
+            $errors[] = 'Назва завдання повинна містити щонайменше 3 символи.';
+        }
+
+        if ($deadline !== null && $deadline !== '') {
+            $timestamp = strtotime($deadline);
+            if ($timestamp === false) {
+                $errors[] = 'Вказано некоректну дату дедлайну.';
+            }
+        } else {
+            $deadline = null;
+        }
+
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
+        }
+
+        $task = new Task(
+            id:          $this->generateNextId(),
+            title:       $cleanTitle,
+            isCompleted: false,
+            deadline:    $deadline,
+        );
+
         $this->tasks[] = $task;
         $this->save();
+
         return $task;
     }
 
     public function complete(int $id): bool
     {
         $task = $this->findById($id);
-        if (!$task) return false;
+        if ($task === null) {
+            throw new TaskNotFoundException($id);
+        }
+
         $task->complete();
         $this->save();
         return true;
@@ -50,7 +84,7 @@ class TaskRepository
                 return true;
             }
         }
-        return false;
+        throw new TaskNotFoundException($id);
     }
 
     public function countCompleted(): int
@@ -72,6 +106,7 @@ class TaskRepository
     private function load(): void
     {
         if (!file_exists($this->storageFile)) { $this->tasks = []; return; }
+        $json = file_get_contents($this->storageFile);
         $data = json_decode(file_get_contents($this->storageFile), true) ?? [];
         $this->tasks = array_map(fn(array $item) => Task::fromArray($item), $data);
     }
