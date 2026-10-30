@@ -7,7 +7,7 @@ class TaskNotFoundException extends TaskManagerExeption
 {
     public function __construct(int $taskId)
     {
-        parent::__construct("Завдання з ідентифікатором #{$taskId} не знайдено."б 404);
+        parent::__construct("Завдання з ідентифікатором #{$taskId} не знайдено.", 404);
     }
 }
 
