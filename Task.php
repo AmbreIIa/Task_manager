@@ -5,6 +5,8 @@ require_once __DIR__ . '/TimestampableTrait.php';
 
 class Task
 {
+    use TimestampableTrait;
+
     public function __construct(
         public readonly int    $id,
         private string         $title,
