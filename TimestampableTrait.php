@@ -9,7 +9,7 @@ trait TimestampableTrait
     public function initTimestamps(?string $createdAt = null, ?string $updatedAt = null): void
     {
         $this->createdAt = $createdAt ?? date('Y-m-d H:i:s');
-        $this->createdAt = $updatedAt;
+        $this->updateAt = $updatedAt;
     }
 
     public function touch(): void
