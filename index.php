@@ -4,7 +4,7 @@ session_start();
 
 require_once __DIR__ . '/Task.php';
 require_once __DIR__ . '/TskRepository.php'; 
-require_once __DIR__ . '/TaskRepository.php';
+require_once __DIR__ . '/TskRepository.php';
 require_once __DIR__ . '/Exceptions.php';
 
 // Перевірка авторизації
@@ -67,6 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$appName = 'Task manager';
+
+function getCurrentGreeting(): string {
+    $hour = (int) date('H');
+    if ($hour >= 5 && $hour < 12) return 'Доброго ранку!';
+    if ($hour >= 12 && $hour < 18) return 'Доброго дня!';
+    if ($hour >= 18 && $hour < 23) return 'Доброго вечора!';
+    return 'Доброй ночі!';
+}
+
 $tasks = $repo->findAll();
 ?>
 
@@ -121,32 +131,14 @@ $tasks = $repo->findAll();
         <button type="submit">Додати</button>
     </form>
 
-    <div class='stats'>
-        Всього завдань: <?= count($tasks) ?> |
-        Виконано: <?= $repo->countCompleted() ?> |
-        Прострочено: <?= $repo->countOverdue() ?>
-    </div
-
-        <?php if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true): ?>
-            Привіт <?= htmlspecialchars($_SESSION['user_name'] ?? 'Користувач') ?>!
-            <a href="logout.php">Вийти</a>
-        <?php else: ?>
-            Ви увійшли як Гість.
-            <a href="login.php">Увійти</a>
-        <?php endif; ?>
-        
-        <br>
-        <a href="create.php">Додати нове завдання</a>
-
-        <h1><?= $appName ?></h1>
-        <p><?= getCurrentGreeting() ?></p>
-
-      
         <div class="stats">
             Всього: <?= count($tasks) ?> |
             Виконано: <?= $repo->countCompleted() ?> |
             Прострочено: <?= $repo->countOverdue() ?>
         </div>
+
+        <h1><?= $appName ?></h1>
+        <p><?= getCurrentGreeting() ?></p>
 
         <div class="tasks-list">
     <?php if (empty($tasks)): ?>
