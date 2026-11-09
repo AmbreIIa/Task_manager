@@ -4,7 +4,6 @@ session_start();
 
 require_once __DIR__ . '/Task.php';
 require_once __DIR__ . '/TskRepository.php'; 
-require_once __DIR__ . '/TskRepository.php';
 require_once __DIR__ . '/Exceptions.php';
 
 // Перевірка авторизації
@@ -74,7 +73,7 @@ function getCurrentGreeting(): string {
     if ($hour >= 5 && $hour < 12) return 'Доброго ранку!';
     if ($hour >= 12 && $hour < 18) return 'Доброго дня!';
     if ($hour >= 18 && $hour < 23) return 'Доброго вечора!';
-    return 'Доброй ночі!';
+    return 'Доброї ночі!';
 }
 
 $tasks = $repo->findAll();
@@ -107,7 +106,12 @@ $tasks = $repo->findAll();
 <body>
 
     <h1>Менеджер завдань</h1>
-    <p>Користувач: <strong><?= htmlspecialchars($_SESSION['user_name'] ?? 'Адміністратор') ?></strong> | <a href="login.php">Вийти</a></p>
+    
+    <p>
+        Користувач: <strong><?= htmlspecialchars($_SESSION['user_name'] ?? 'Адміністратор') ?></strong> |
+        <a href="test_db.php">🔍 Діагностика БД (MySQL)</a> |
+        <a href="login.php">Вийти</a>
+    </p>
 
     <?php if ($feedbackMessage): ?>
         <div class='alert-success'><?= htmlspecialchars($feedbackMessage) ?></div>
@@ -131,64 +135,64 @@ $tasks = $repo->findAll();
         <button type="submit">Додати</button>
     </form>
 
-        <div class="stats">
-            Всього: <?= count($tasks) ?> |
-            Виконано: <?= $repo->countCompleted() ?> |
-            Прострочено: <?= $repo->countOverdue() ?>
-        </div>
+    <div class="stats">
+        Всього: <?= count($tasks) ?> |
+        Виконано: <?= $repo->countCompleted() ?> |
+        Прострочено: <?= $repo->countOverdue() ?>
+    </div>
 
-        <h1><?= $appName ?></h1>
-        <p><?= getCurrentGreeting() ?></p>
+    <h1><?= $appName ?></h1>
+    <p><?= getCurrentGreeting() ?></p>
 
-        <div class="tasks-list">
-    <?php if (empty($tasks)): ?>
-        <p>Список завдань порожній.</p>
-    <?php else: ?>
-        <?php foreach ($tasks as $task): ?>
-            <div class="task">
-                <div>
+    <div class="tasks-list">
+        <?php if (empty($tasks)): ?>
+            <p>Список завдань порожній.</p>
+        <?php else: ?>
+            <?php foreach ($tasks as $task): ?>
+                <div class="task">
                     <div>
-                        <strong><?= htmlspecialchars($task->getTitle()) ?></strong>
-                        <?php if ($task->getDeadline()): ?>
-                            <small>(Дедлайн: <?= htmlspecialchars($task->getDeadline()) ?>)</small>
-                        <?php endif; ?>
+                        <div>
+                            <strong><?= htmlspecialchars($task->getTitle()) ?></strong>
+                            <?php if ($task->getDeadline()): ?>
+                                <small>(Дедлайн: <?= htmlspecialchars($task->getDeadline()) ?>)</small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="task-meta">
+                            Створено: <?= htmlspecialchars($task->getCreatedAt()) ?>
+                            <?php if ($task->getUpdatedAt()): ?>
+                                | Оновлено: <?= htmlspecialchars($task->getUpdatedAt()) ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="task-meta">
-                        Створено: <?= htmlspecialchars($task->getCreatedAt()) ?>
-                        <?php if ($task->getUpdatedAt()): ?>
-                            | Оновлено: <?= htmlspecialchars($task->getUpdatedAt()) ?>
+
+                    <div class="actions">
+                        <?php
+                        $badgeClass = match ($task->getStatusLabel()) {
+                            'Виконано'   => 'badge-success',
+                            'Прострочено' => 'badge-danger',
+                            default       => 'badge-primary',
+                        };
+                        ?>
+                        <span class="badge <?= $badgeClass ?>"><?= $task->getStatusLabel() ?></span>
+
+                        <?php if (!$task->isCompleted()): ?>
+                            <form method="POST" action="index.php" style="display:inline;">
+                                <input type="hidden" name="action" value="complete">
+                                <input type="hidden" name="id" value="<?= $task->getId() ?>">
+                                <button type="submit" title="Позначити виконаним">✓</button>
+                            </form>
                         <?php endif; ?>
-                    </div>
-                </div>
 
-                <div class="actions">
-                    <?php
-                    $badgeClass = match ($task->getStatusLabel()) {
-                        'Виконано'   => 'badge-success',
-                        'Прострочено' => 'badge-danger',
-                        default       => 'badge-primary',
-                    };
-                    ?>
-                    <span class="badge <?= $badgeClass ?>"><?= $task->getStatusLabel() ?></span>
-
-                    <?php if (!$task->isCompleted()): ?>
                         <form method="POST" action="index.php" style="display:inline;">
-                            <input type="hidden" name="action" value="complete">
+                            <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= $task->getId() ?>">
-                            <button type="submit" title="Позначити виконаним">✓</button>
+                            <button type="submit" title="Видалити">✕</button>
                         </form>
-                    <?php endif; ?>
-
-                    <form method="POST" action="index.php" style="display:inline;">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="id" value="<?= $task->getId() ?>">
-                        <button type="submit" title="Видалити">✕</button>
-                    </form>
+                    </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
 
 </body>
 </html>
