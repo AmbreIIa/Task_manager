@@ -9,29 +9,30 @@ class Task
 
     public function __construct(
         public readonly int    $id,
+        public readonly int    $userId,
         private string         $title,
         private bool           $isCompleted = false,
         private ?string        $deadline    = null,
-        ?string                $createdAt = null,
-        ?string                $updatedAt = null,
     ) {
-
-        $this->initTimestamps($createdAt, $updatedAt);
-
         if (empty(trim($title))) {
-            throw new InvalidArgumentException('Назва завдання не може бути пустою!');
+            throw new InvalidArgumentException('Назва завдання не може бути порожньою.');
         }
     }
 
-    // --- Геттери ---
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
 
-    public function getId(): int { return $this->id; }
-    public function getTitle(): string { return $this->title; }
-    public function isCompleted(): bool { return $this->isCompleted; }
-    public function getDeadline(): ?string { return $this->deadline; }
+    public function isCompleted(): bool
+    {
+        return $this->isCompleted;
+    }
 
-
-    // --- Бізнес-методи ---
+    public function getDeadline(): ?string
+    {
+        return $this->deadline;
+    }
 
     public function isOverdue(): bool
     {
@@ -40,39 +41,52 @@ class Task
         }
         return strtotime($this->deadline) < time();
     }
-    
-    public function complete(): void { $this->isCompleted = true; $this->touch(); }
+
+    public function complete(): void
+    {
+        $this->isCompleted = true;
+        $this->touch();
+    }
 
     public function getStatusLabel(): string
     {
-        if ($this->isCompleted) return 'Виконано';
-        if ($this->isOverdue()) return 'Прострочено';
+        if ($this->isCompleted) {
+            return 'Виконано';
+        }
+        if ($this->isOverdue()) {
+            return 'Прострочено';
+        }
         return 'В процесі';
-    }
-    
-    // --- Серіалізація / Десеріалізація ---
-
-    public function toArray(): array
-    {
-        return [
-            'id'          => $this->id,
-            'title'       => $this->title,
-            'isCompleted' => $this->isCompleted,
-            'deadline'    => $this->deadline,
-            'createdAt'   => $this->getCreatedAt(),
-            'udatedAt'    => $this->getUpdatedAt(),
-        ];
     }
 
     public static function fromArray(array $data): self
     {
-        return new self(
+        $task = new self(
             id:          (int) $data['id'],
-            title:       (string) $data['title'],
-            isCompleted: (bool) $data['isCompleted'] ?? false,
-            deadline:    $data['deadline']    ?? null,
-            createdAt:   $data['cratedAt']    ?? null,
-            updatedAt:   $data['updatedAt']   ?? null,
+            userId:      (int) $data['user_id'],
+            title:       $data['title'],
+            isCompleted: (bool) $data['is_completed'],
+            deadline:    $data['deadline'] ?? null,
         );
+
+        $task->initTimestamps(
+            createdAt: $data['created_at'] ?? null,
+            updatedAt: $data['updated_at'] ?? null,
+        );
+
+        return $task;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id'           => $this->id,
+            'user_id'      => $this->userId,
+            'title'        => $this->title,
+            'is_completed' => $this->isCompleted,
+            'deadline'     => $this->deadline,
+            'created_at'   => $this->getCreatedAt(),
+            'updated_at'   => $this->getUpdatedAt(),
+        ];
     }
 }
