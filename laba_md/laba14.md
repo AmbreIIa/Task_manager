@@ -1,5 +1,5 @@
 ### Фрагмент коду 
-##dispatch
+## dispatch
 ```php
 public function dispatch(string $method, string $uri): void
     {
@@ -32,7 +32,7 @@ public function dispatch(string $method, string $uri): void
     }
 
 ```
-##render
+## render
 ```php
 protected function render(string $view, array $data = []): void
     {
@@ -57,12 +57,12 @@ protected function render(string $view, array $data = []): void
         require $layoutFile;
     }
 ```
-###Скриншоти
-##Скриншот структури каталогів проєкту
+### Скриншоти
+## Скриншот структури каталогів проєкту
 ![](Screnshots/laba14_1.png)
-##Скриншот браузера зі списком завдань
+## Скриншот браузера зі списком завдань
 ![](Screnshots/laba14_2.png)
-##Скриншот браузера зі сторінкою 404 
+## Скриншот браузера зі сторінкою 404 
 ![](Screnshots/laba14_3.png)
 
 ### 1. Призначення складових MVC та їхня взаємодія
