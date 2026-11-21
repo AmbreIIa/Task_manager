@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/Task.php';
-require_once __DIR__ . '/TaskStorageInterface.php';
-require_once __DIR__ . '/Exceptions.php';
 
 class TaskRepository implements TaskStorageInterface
 {

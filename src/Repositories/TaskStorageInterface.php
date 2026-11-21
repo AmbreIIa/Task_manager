@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/Task.php';
-
 interface TaskStorageInterface
 {
     public function add(int $userId, string $title, ?string $deadline = null): Task;
